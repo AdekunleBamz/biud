@@ -1,0 +1,26 @@
+---
+id: 0
+name: BiUD Mainnet Deployment
+network: mainnet
+stacks-node: "https://api.mainnet.hiro.so"
+bitcoin-node: ~
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: biud-username
+            expected-sender: SP31G2FZ5JN87BATZMP4ZRYE5F7WZQDNEXJ7G7X97
+            cost: 1000000
+            path: contracts/biud-username.clar
+            anchor-block-only: true
+            clarity-version: 2
+    - id: 1
+      transactions:
+        - contract-publish:
+            contract-name: biud-resolver
+            expected-sender: SP31G2FZ5JN87BATZMP4ZRYE5F7WZQDNEXJ7G7X97
+            cost: 500000
+            path: contracts/biud-resolver.clar
+            anchor-block-only: true
+            clarity-version: 2

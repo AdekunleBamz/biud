@@ -1,0 +1,34 @@
+{
+  "name": "biud",
+  "version": "1.0.0",
+  "description": "BiUD — Bitcoin Username Domain (.sBTC) - Decentralized username registrar on Stacks",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "clarinet check",
+    "console": "clarinet console"
+  },
+  "devDependencies": {
+    "@hirosystems/clarinet-sdk": "^2.3.0",
+    "@stacks/network": "^7.2.0",
+    "@stacks/transactions": "^6.17.0",
+    "@stacks/wallet-sdk": "^7.2.0",
+    "bip39": "^3.1.0",
+    "node-fetch": "^3.3.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2",
+    "vitest-environment-clarinet": "^2.0.0"
+  },
+  "keywords": [
+    "stacks",
+    "bitcoin",
+    "clarity",
+    "username",
+    "domain",
+    "registrar",
+    "ens",
+    "web3"
+  ],
+  "author": "",
+  "license": "MIT"
+}

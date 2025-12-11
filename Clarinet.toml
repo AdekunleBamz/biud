@@ -1,0 +1,12 @@
+[project]
+name = "biud"
+description = ""
+authors = []
+
+[contracts.biud-username-v3]
+path = "contracts/biud-username-v2.clar"
+clarity_version = 2
+epoch = 2.5
+
+[repl.analysis]
+passes = ["check_checker"]
