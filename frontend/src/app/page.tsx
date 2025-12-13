@@ -6,19 +6,55 @@
 'use client';
 
 import { useState } from 'react';
+import { openContractCall } from '@stacks/connect';
 import WalletConnect from '../components/WalletConnect';
 import NameSearch from '../components/NameSearch';
 import NameDetails from '../components/NameDetails';
 import ThemeToggle from '../components/ThemeToggle';
+import { getRegisterNameOptions, getRegistrationFee, formatSTX } from '../services/biud';
 
 export default function Home() {
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [registrationFee, setRegistrationFee] = useState<number>(0);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [txStatus, setTxStatus] = useState<string | null>(null);
 
   const handleNameSelected = (label: string, available: boolean, fee: number) => {
     setSelectedName(label);
     setIsAvailable(available);
+    setRegistrationFee(fee);
+    setTxStatus(null);
+  };
+
+  const handleRegister = async () => {
+    if (!selectedName || !connectedAddress) return;
+    
+    setIsRegistering(true);
+    setTxStatus(null);
+    
+    try {
+      const options = getRegisterNameOptions(selectedName);
+      
+      await openContractCall({
+        ...options,
+        onFinish: (data) => {
+          console.log('Transaction submitted:', data);
+          setTxStatus(`Transaction submitted! TX ID: ${data.txId}`);
+          setIsRegistering(false);
+        },
+        onCancel: () => {
+          console.log('Transaction cancelled by user');
+          setTxStatus('Transaction cancelled');
+          setIsRegistering(false);
+        },
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      setTxStatus(`Error: ${error instanceof Error ? error.message : 'Failed to register'}`);
+      setIsRegistering(false);
+    }
   };
 
   return (
@@ -58,9 +94,23 @@ export default function Home() {
           {/* Action Buttons */}
           {selectedName && isAvailable && connectedAddress && (
             <div className="mt-8">
-              <button className="px-8 py-4 bg-stacks hover:bg-stacks/90 text-white rounded-lg font-semibold text-lg transition-colors">
-                Register {selectedName}.sBTC
+              <button 
+                onClick={handleRegister}
+                disabled={isRegistering}
+                className="px-8 py-4 bg-stacks hover:bg-stacks/90 text-white rounded-lg font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRegistering ? 'Registering...' : `Register ${selectedName}.sBTC`}
               </button>
+              {registrationFee > 0 && (
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Fee: {formatSTX(registrationFee)} STX
+                </p>
+              )}
+              {txStatus && (
+                <p className={`mt-4 text-sm ${txStatus.includes('Error') || txStatus.includes('cancelled') ? 'text-red-500' : 'text-green-500'}`}>
+                  {txStatus}
+                </p>
+              )}
             </div>
           )}
 
