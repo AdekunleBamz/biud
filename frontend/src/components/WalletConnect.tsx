@@ -1,6 +1,7 @@
 /**
  * BiUD Frontend - Wallet Connection Component
  * Uses @stacks/connect for wallet integration
+ * Supports both desktop (Leather) and mobile (Xverse) wallets
  */
 
 'use client';
@@ -16,6 +17,14 @@ if (typeof window !== 'undefined') {
   userSession = new UserSession({ appConfig });
 }
 
+// Detect if user is on mobile device
+const isMobileDevice = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
+
 interface WalletConnectProps {
   onConnect?: (address: string) => void;
   onDisconnect?: () => void;
@@ -28,7 +37,31 @@ export default function WalletConnect({ onConnect, onDisconnect }: WalletConnect
   useEffect(() => {
     // Check if user is signed in on mount (client-side only)
     checkSession();
+    
+    // Also check for pending sign-in (handles redirect flow on mobile)
+    handlePendingSignIn();
   }, []);
+
+  const handlePendingSignIn = async () => {
+    if (typeof window === 'undefined' || !userSession) return;
+    
+    try {
+      // Check if there's a pending sign-in from redirect
+      if (userSession.isSignInPending()) {
+        console.log('Pending sign-in detected, handling...');
+        const userData = await userSession.handlePendingSignIn();
+        if (userData) {
+          const userAddress = userData?.profile?.stxAddress?.mainnet;
+          if (userAddress) {
+            setAddress(userAddress);
+            onConnect?.(userAddress);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error handling pending sign-in:', e);
+    }
+  };
 
   const clearSession = () => {
     // Clear any stored session data
@@ -83,10 +116,23 @@ export default function WalletConnect({ onConnect, onDisconnect }: WalletConnect
     showConnect({
       appDetails: {
         name: 'BiUD - Bitcoin Username Domain',
-        icon: '/logo.png',
+        icon: typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : '/logo.png',
       },
-      onFinish: () => {
+      onFinish: (payload) => {
+        // payload contains the authentication response directly
+        console.log('Wallet connection payload:', payload);
+        
         try {
+          // Try to get address from payload first (more reliable on mobile)
+          const addressFromPayload = payload?.userSession?.loadUserData()?.profile?.stxAddress?.mainnet;
+          
+          if (addressFromPayload) {
+            setAddress(addressFromPayload);
+            onConnect?.(addressFromPayload);
+            return;
+          }
+          
+          // Fallback: check userSession directly
           if (userSession?.isUserSignedIn()) {
             const userData = userSession.loadUserData();
             const userAddress = userData?.profile?.stxAddress?.mainnet;
@@ -97,7 +143,14 @@ export default function WalletConnect({ onConnect, onDisconnect }: WalletConnect
           }
         } catch (e) {
           console.error('Connection finish error:', e);
+          // Last resort: try to reload session after a small delay
+          setTimeout(() => {
+            checkSession();
+          }, 500);
         }
+      },
+      onCancel: () => {
+        console.log('User cancelled wallet connection');
       },
       userSession,
     });
@@ -143,12 +196,19 @@ export default function WalletConnect({ onConnect, onDisconnect }: WalletConnect
   }
 
   return (
-    <button
-      onClick={handleConnect}
-      className="bg-stacks hover:bg-stacks/90 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-    >
-      Connect Wallet
-    </button>
+    <div className="flex flex-col items-center gap-2">
+      <button
+        onClick={handleConnect}
+        className="bg-stacks hover:bg-stacks/90 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+      >
+        Connect Wallet
+      </button>
+      {isMobileDevice() && (
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[200px]">
+          Use Xverse mobile app for best experience
+        </p>
+      )}
+    </div>
   );
 }
 
