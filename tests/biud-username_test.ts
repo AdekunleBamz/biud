@@ -786,6 +786,121 @@ describe("Event Emissions", () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
+// SUBDOMAIN TESTS
+// ════════════════════════════════════════════════════════════════════════════
+
+describe("Subdomain Support", () => {
+  it("should register a subdomain successfully", () => {
+    // Register parent
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("alice")], wallet1);
+    
+    // Register subdomain
+    const result = simnet.callPublicFn(
+      contractName,
+      "register-name",
+      [Cl.stringUtf8("sub.alice")],
+      wallet1
+    );
+    
+    expect(result.result).toBeOk(Cl.tuple({
+      "name-id": Cl.uint(2),
+      "full-name": Cl.stringUtf8("sub.alice.sBTC"),
+      "expiry-height": Cl.uint(simnet.blockHeight + 52560),
+      "fee-paid": Cl.uint(10000000)  // Same fee, not premium
+    }));
+  });
+
+  it("should fail to register subdomain if parent not owned", () => {
+    // Register parent by wallet1
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("alice")], wallet1);
+    
+    // Try to register subdomain by wallet2
+    const result = simnet.callPublicFn(
+      contractName,
+      "register-name",
+      [Cl.stringUtf8("sub.alice")],
+      wallet2
+    );
+    
+    expect(result.result).toBeErr(Cl.uint(1003)); // ERR_NOT_OWNER
+  });
+
+  it("should treat subdomain as non-premium", () => {
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("alice")], wallet1);
+    
+    // Check premium status
+    expect(
+      simnet.callReadOnlyFn(contractName, "is-premium-name", [Cl.stringUtf8("sub.alice")], wallet1).result
+    ).toBeBool(false);  // Longer than 4 chars
+  });
+
+  it("should allow renewal of subdomain", () => {
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("alice")], wallet1);
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("sub.alice")], wallet1);
+    
+    const result = simnet.callPublicFn(
+      contractName,
+      "renew-name",
+      [Cl.stringUtf8("sub.alice")],
+      wallet1
+    );
+    
+    expect(result.result).toBeOk(Cl.tuple({
+      "new-expiry-height": Cl.uint(simnet.blockHeight + 52560 + 52559),
+      "fee-paid": Cl.uint(5000000)
+    }));
+  });
+
+  it("should allow transfer of subdomain", () => {
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("alice")], wallet1);
+    simnet.callPublicFn(contractName, "register-name", [Cl.stringUtf8("sub.alice")], wallet1);
+    
+    const result = simnet.callPublicFn(
+      contractName,
+      "transfer-name",
+      [Cl.stringUtf8("sub.alice"), Cl.principal(wallet2)],
+      wallet1
+    );
+    
+    expect(result.result).toBeOk(Cl.bool(true));
+    
+    // Verify owner changed
+    expect(
+      simnet.callReadOnlyFn(contractName, "get-owner", [Cl.stringUtf8("sub.alice")], wallet1).result
+    ).toBeSome(Cl.principal(wallet2));
+  });
+
+  it("should validate subdomain format", () => {
+    // Invalid: empty subdomain
+    let result = simnet.callPublicFn(
+      contractName,
+      "register-name",
+      [Cl.stringUtf8(".alice")],  // starts with dot
+      wallet1
+    );
+    expect(result.result).toBeErr(Cl.uint(1005)); // ERR_INVALID_LABEL
+    
+    // Invalid: empty parent
+    result = simnet.callPublicFn(
+      contractName,
+      "register-name",
+      [Cl.stringUtf8("sub.")],  // ends with dot
+      wallet1
+    );
+    expect(result.result).toBeErr(Cl.uint(1005));
+    
+    // Valid format but parent doesn't exist
+    result = simnet.callPublicFn(
+      contractName,
+      "register-name",
+      [Cl.stringUtf8("sub.nonexistent")],
+      wallet1
+    );
+    expect(result.result).toBeErr(Cl.uint(1009)); // ERR_NAME_NOT_FOUND
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // EDGE CASE TESTS
 // ════════════════════════════════════════════════════════════════════════════
 
