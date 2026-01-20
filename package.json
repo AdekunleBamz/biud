@@ -5,8 +5,34 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:report": "vitest run -- --coverage --costs",
     "check": "clarinet check",
-    "console": "clarinet console"
+    "console": "clarinet console",
+    "clarinet:test": "clarinet test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdekunleBamz/biud.git"
+  },
+  "keywords": [
+    "stacks",
+    "bitcoin",
+    "clarity",
+    "username",
+    "domain",
+    "registrar",
+    "ens",
+    "web3",
+    "decentralized-identity"
+  ],
+  "author": "Adekunle Bamz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AdekunleBamz/biud/issues"
+  },
+  "homepage": "https://github.com/AdekunleBamz/biud#readme",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@hirosystems/clarinet-sdk": "^2.3.0",
@@ -18,17 +44,5 @@
     "typescript": "^5.3.3",
     "vitest": "^1.2.2",
     "vitest-environment-clarinet": "^2.0.0"
-  },
-  "keywords": [
-    "stacks",
-    "bitcoin",
-    "clarity",
-    "username",
-    "domain",
-    "registrar",
-    "ens",
-    "web3"
-  ],
-  "author": "",
-  "license": "MIT"
+  }
 }
