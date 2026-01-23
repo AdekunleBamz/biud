@@ -1,4 +1,4 @@
-# BiUD — Bitcoin Username Domain (.sBTC)
+<!-- BIUD contribution -->n# BiUD — Bitcoin Username Domain (.sBTC)
 
 <div align="center">
 
