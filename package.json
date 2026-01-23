@@ -2,7 +2,7 @@
   "name": "biud",
   "version": "1.0.0",
   "description": "BiUD — Bitcoin Username Domain (.sBTC) - Decentralized username registrar on Stacks",
-  "scripts": {
+  "homepage": "https://github.com/AdekunleBamz/biud",  "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "clarinet check",
