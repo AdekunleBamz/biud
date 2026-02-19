@@ -3,8 +3,13 @@ name = "biud"
 description = ""
 authors = []
 
-[contracts.biud-username-v3]
-path = "contracts/biud-username-v2.clar"
+[contracts.biud-username]
+path = "contracts/biud-username-v4.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.biud-resolver]
+path = "contracts/biud-resolver-v2.clar"
 clarity_version = 2
 epoch = 2.5
 
