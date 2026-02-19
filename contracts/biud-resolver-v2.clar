@@ -13,7 +13,7 @@
 ;; =============================================================================
 
 ;; Import the resolver trait from the main contract
-(impl-trait .biud-username-v2.resolver-trait)
+(impl-trait .biud-username.resolver-trait)
 
 ;; =============================================================================
 ;; CONSTANTS
@@ -59,7 +59,7 @@
 (define-public (set-stx-address (label (string-utf8 32)) (address principal))
   (let
     (
-      (name-owner (unwrap! (contract-call? .biud-username-v2 get-owner label) ERR_NOT_FOUND))
+      (name-owner (unwrap! (contract-call? .biud-username get-owner label) ERR_NOT_FOUND))
     )
     ;; Only the name owner can set records
     (asserts! (is-eq tx-sender name-owner) ERR_NOT_OWNER)
@@ -85,7 +85,7 @@
 (define-public (set-btc-address (label (string-utf8 32)) (btc-addr (buff 64)))
   (let
     (
-      (name-owner (unwrap! (contract-call? .biud-username-v2 get-owner label) ERR_NOT_FOUND))
+      (name-owner (unwrap! (contract-call? .biud-username get-owner label) ERR_NOT_FOUND))
     )
     ;; Only the name owner can set records
     (asserts! (is-eq tx-sender name-owner) ERR_NOT_OWNER)
@@ -111,7 +111,7 @@
 (define-public (set-custom-data (label (string-utf8 32)) (data (buff 64)))
   (let
     (
-      (name-owner (unwrap! (contract-call? .biud-username-v2 get-owner label) ERR_NOT_FOUND))
+      (name-owner (unwrap! (contract-call? .biud-username get-owner label) ERR_NOT_FOUND))
     )
     ;; Only the name owner can set records
     (asserts! (is-eq tx-sender name-owner) ERR_NOT_OWNER)
@@ -137,7 +137,7 @@
 (define-public (clear-records (label (string-utf8 32)))
   (let
     (
-      (name-owner (unwrap! (contract-call? .biud-username-v2 get-owner label) ERR_NOT_FOUND))
+      (name-owner (unwrap! (contract-call? .biud-username get-owner label) ERR_NOT_FOUND))
     )
     (asserts! (is-eq tx-sender name-owner) ERR_NOT_OWNER)
     
