@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Clarinet
+        uses: hirosystems/setup-clarinet@v1
+        with:
+          version: '2.0.0'
+
+      - name: Check contracts
+        run: clarinet check
+
+      - name: Run tests
+        run: clarinet test
