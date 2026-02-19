@@ -16,6 +16,7 @@
 [![Clarity](https://img.shields.io/badge/Clarity-4-blue)](https://clarity-lang.org/)
 [![Stacks](https://img.shields.io/badge/Stacks-Bitcoin%20L2-orange)](https://stacks.co/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![CI](https://github.com/stacksgov/biud/actions/workflows/main.yml/badge.svg)](https://github.com/stacksgov/biud/actions/workflows/main.yml)
 
 </div>
 
@@ -54,7 +55,7 @@ Names are registered, renewed, transferred, and resolved **entirely on-chain** u
 biud/
 ├── Clarinet.toml              # Clarinet configuration
 ├── contracts/
-│   └── biud-username.clar     # Main registry contract
+│   └── biud-username-v4.clar  # Main registry contract (v4)
 ├── tests/
 │   └── biud-username_test.ts  # Test suite
 ├── settings/
